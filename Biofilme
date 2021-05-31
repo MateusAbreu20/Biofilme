@@ -1,0 +1,25 @@
+phi=zf/1000
+cf=(ca*np.cosh(phi-z0)*math.sqrt(k/Dab))/np.cosh(phi*(math.sqrt(k/Dab)))
+
+tmax=3600#tempo maximo de execução
+
+N=400#tamanho da malha
+dz=zf/N#delta z
+
+
+z=np.linspace(0,zf,N+1) #definindo a malha
+C=np.zeros(N+1)#concentração a media que penetra no biofime
+
+print(f'Malha;{N} pontos')
+C[:]=ca #condição incial
+C[[0,-1]] = cf#condição de contorno
+
+#variaveis auxiliares
+#dificuldades em escrever a edo 
+
+#criar grafico
+fig=plt.figure()
+plt.ylim(z0,phi)
+plt.xlim(ca,cf)
+plt.xlabel('aa')
+plt.ylabel('asa')
