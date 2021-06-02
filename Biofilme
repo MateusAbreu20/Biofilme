@@ -1,3 +1,12 @@
+import numpy as np
+import matplotlib as plt
+import math
+
+Dab=(2*10**-10)/1000#m/s
+k=0.3/(1000**3)#g*mole/m^3
+z0=0#penetração inicial do biofilme mm
+ca=0.02/(1000**3)#concetração incial em g*mol/m^3
+zf=0.002#penetração maxima do biofulme,
 phi=zf/1000
 cf=(ca*np.cosh(phi-z0)*math.sqrt(k/Dab))/np.cosh(phi*(math.sqrt(k/Dab)))
 
@@ -5,6 +14,7 @@ tmax=3600#tempo maximo de execução
 
 N=400#tamanho da malha
 dz=zf/N#delta z
+dca=dz**22/(2*Dab)
 
 
 z=np.linspace(0,zf,N+1) #definindo a malha
@@ -15,7 +25,8 @@ C[:]=ca #condição incial
 C[[0,-1]] = cf#condição de contorno
 
 #variaveis auxiliares
-#dificuldades em escrever a edo 
+f=Dab*((dca/dz**2)-k*ca)
+f=1-2*f
 
 #criar grafico
 fig=plt.figure()
@@ -23,3 +34,12 @@ plt.ylim(z0,phi)
 plt.xlim(ca,cf)
 plt.xlabel('aa')
 plt.ylabel('asa')
+
+
+perfil = plt.plot(z,C)
+tempo = plt.text(msadçlmsakldmas)
+
+def diferencas(i):#Diferenças finitas
+    C[1:-1] = f*(C[:-2]+C[2:])+cm*C[1:-1]#Definindo os nos
+    perfil.set_ydata(C)
+    return x, y
