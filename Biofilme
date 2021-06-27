@@ -1,50 +1,55 @@
+import math as mt
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-from matplotlib.animation import FuncAnimation as animation
 
-Dab=(2*10**-10)#m/s
-k=1.9*(10**-2)#g*mole/m^3
-z0=0#penetração inicial do biofilme mm
-ca=0.02#concetração incial em g*mol/m^3
-zf=0.002#penetração maxima do biofulme,
-phi=zf
-cf=(ca*np.cosh(phi-z0)*math.sqrt(k/Dab))/np.cosh(phi*(math.sqrt(k/Dab)))
-thiele=phi*math.sqrt(k/Dab)
+#Variaveis:
+delta=0.002#comprimento do biofilme em[m^3]
+N=100#Numero de pontos da Malha
+k=1.9e-2#Constante da reção quimica em [1/s]
+Dab=2.0e-10#Difusidade do phenol em[m^2/s]
+Co=0.02#Concentração inicial em[mol/m^3]
+dz=delta/(N-1)#calculo do delta Z
 
-tmax=3600#tempo maximo de execução
+#Fazendo a Matriz
+z=np.linspace(0,delta,N)#Criando a malha
+A=np.zeros((N,N))#Criando a matriz dos coeficientes
+B=np.zeros(N)#Criando o vetor
+print(f'Malha: {N} pontos')#Imprime o tamanho da malha
+A[0,0]=1#Define a posição 00 da Matriz a como 1
+B[0]=Co#Define a posição inicial do vetor como 0.02
+#Definição dos nos internos da malha
+for i in np.arange(1,N-1):
+    A[i,i-1]=1
+    A[i,i]=-(2+(dz**2*k)/Dab)
+    A[i,i+1]=1
+    B[i]=0
+A[N-1,N-2]=-1
+A[N-1,N-1]=1
+B[N-1]=0 
 
-N=400#tamanho da malha
-dz=zf/N#delta z
-dca=dz**2/(2*Dab)
+#resolve o sistema linear
+C=np.linalg.solve(A,B)
+ 
+#Resolução do problema de maneira analtica
+def Ca(z):
+    return ((Co*np.cosh(delta-z)*mt.sqrt(k/Dab))/(np.cosh(delta*(mt.sqrt(k/Dab)))))
+X=np.linspace(0,delta,N)
+Y=np.zeros(N)
+for i, Xi in enumerate(X):
+    Y[i]=Ca(Xi)
+    print(f'Valor de x:{X} <--')
+    print(f'Valor de Y:{Y} <--')
 
+#Calculo do erro
+erro=0
+for j, Xj in enumerate(z):
+    erro+=np.abs(Ca(Xj)-C[j])
+erro/=N
+print(f'Erro:{erro} <--')
 
-z=np.linspace(0,zf,N+1) #definindo a malha
-C=np.zeros(N+1)#concentração a media que penetra no biofime
-
-print(f'Malha;{N} pontos')
-C[:]=ca #condição incial
-C[[0,-1]] = cf#condição de contorno
-
-#variaveis auxiliares
-f=Dab*((dca/dz**2)-k*ca)
-cm=1-2*f
-
-#criar grafico
-fig=plt.figure()
-plt.ylim(z0,phi)
+#Fazendo o grafico
+#plt.plot(z,C,'g')
+plt.plot(X,Y,'r')
 plt.ylabel('Concentração,C_a(z)(mol/m^3)')
-plt.xlabel('Depth into biofilm,z(mm)')
-
-plt.plot(C,[z0]*(N+1),'--')
-perfil = plt.plot(z,C)
-conc = plt.text(zf,0,f't=0 s')
-
-def diferencas(i):#Diferenças finitas
-    C[1:-1] = f*(C[:-2]+C[2:])+cm*C[1:-1]#Definindo os nos
-    perfil.set_ydata(C)
-    conc.set_text(f't={i*dz:.2f}s')
-    return perfil,conc
-
-print(thiele)
+plt.xlabel('Penetração no biofilme,z(mm)')
 plt.show()
