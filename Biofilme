@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 #Variaveis:
 delta=0.002#comprimento do biofilme em[m^3]
-N=100#Numero de pontos da Malha
+N=10#Numero de pontos da Malha
 k=1.9e-2#Constante da reção quimica em [1/s]
 Dab=2.0e-10#Difusidade do phenol em[m^2/s]
 Co=0.02#Concentração inicial em[mol/m^3]
@@ -32,7 +32,7 @@ C=np.linalg.solve(A,B)
  
 #Resolução do problema de maneira analtica
 def Ca(z):
-    return ((Co*np.cosh(delta-z)*mt.sqrt(k/Dab))/(np.cosh(delta*(mt.sqrt(k/Dab)))))
+    return ((Co*np.cosh(z*mt.sqrt(k/Dab)))-(Co*np.sinh(z*mt.sqrt(k/Dab)))/(np.tanh(delta*mt.sqrt(k/Dab))))
 X=np.linspace(0,delta,N)
 Y=np.zeros(N)
 for i, Xi in enumerate(X):
@@ -48,8 +48,8 @@ erro/=N
 print(f'Erro:{erro} <--')
 
 #Fazendo o grafico
-#plt.plot(z,C,'g')
-plt.plot(X,Y,'r')
+plt.plot(z,C,'g')
+plt.plot(X,Y,'o',color='blue')
 plt.ylabel('Concentração,C_a(z)(mol/m^3)')
 plt.xlabel('Penetração no biofilme,z(mm)')
 plt.show()
